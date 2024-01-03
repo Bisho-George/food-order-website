@@ -3,14 +3,15 @@ import { createContext, useReducer } from "react";
 const CartContext = createContext({
     items: [],
     addItem: (item) => { },
-    removeItem: (id) => { }
+    removeItem: (id) => { },
+    resetCart: () => { }
 })
 const cartReducer = (state, action) => {
     if (action.type === 'ADD_ITEM') {
         const updatedItems = [...state.items];
         const existingCartItemIndex = updatedItems.findIndex((item) => item.id === action.item.id)
         if (existingCartItemIndex > -1) {
-            const existingItem = state.items[existingCartItemIndex]
+            const existingItem = updatedItems[existingCartItemIndex]
             const updatedItem = {
                 ...existingItem,
                 quantity: existingItem.quantity + 1
@@ -27,8 +28,8 @@ const cartReducer = (state, action) => {
     }
     if (action.type === 'REMOVE_ITEM') {
         const updatedItems = [...state.items]
-        const existingItemIndex = updatedItems.findIndex(item => item.id === action.id)
-        if (existingItem > -1) {
+        const existingItemIndex = updatedItems.findIndex((item) => item.id === action.id)
+        if (existingItemIndex > -1) {
             const existingItem = updatedItems[existingItemIndex];
             if (existingItem.quantity > 1) {
                 const updatedItem = {
@@ -43,6 +44,13 @@ const cartReducer = (state, action) => {
                 ...state,
                 items: updatedItems
             }
+        }
+    }
+    if (action.type === 'CLEAR_CART') {
+        const updatedItems = []
+        return {
+            ...state,
+            items: updatedItems
         }
     }
     return state;
@@ -63,10 +71,16 @@ export const CartContextProvider = ({ children }) => {
             id
         })
     }
+    const resetCart = () => {
+        dispatchCartAction({
+            type: 'CLEAR_CART'
+        })
+    }
     const cartContext = {
         items: cart.items,
         addItem,
-        removeItem
+        removeItem,
+        resetCart
     }
         
     return <CartContext.Provider value={cartContext}>
